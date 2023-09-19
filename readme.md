@@ -338,3 +338,100 @@ delete copyUser.password
 res.json(copyUser)
  ```
  Despues le asignaremos una propiedad al objeto llamada token donde le pasaremos el token que creamos anteriormente, y finalmente pasamos la respuesta en un json con toda la informacion del user
+
+
+ ### Authentication
+
+ Para la authentication debemos crear un midleware donde crearemos un archivo llamado auth.midleware.js
+
+ Creamos una funcion llamada authenticate donde tendra como paramatreos la req, res , next
+ 
+ En un trycathh debemos escribir lo siguiente
+ ```js
+ const authenticate = (req,res,next)=>{
+    try {
+        const token = req.headers;
+        console.log(token);
+        
+
+    } catch (error) {
+        res.status(400).jsonr(error)
+    }
+}
+
+module.exports= authenticate;
+ ```
+
+ Primero debemos guardar el token en una const extraido del header de la peticion
+ Despues debemos acceder al header que creamos en postman llamado authorization para revisar si esta o no el token enviado
+
+ Y en el codigo hacemos la verificacion siiguiente
+ ```js
+ const authenticate = (req,res,next)=>{
+    try {
+        const authorization = req.headers.authorization;
+        if(!authorization){
+          return  res.status(401).json({message : 'No authorization header'})
+        }
+ ```
+ Si no se encuentra el token entonces mandaremos un error 401 que es para indicar que no esta autorizado, y un mensaje diciendo que no tenemos token para autorizar.
+
+ Despues deberemos verificar el token para ver con que permisos contamos.
+ Se haria de esta manera
+
+   Importamos jwt y dotenv para utilzar nuestras variables de entorno
+
+   ```js
+   const jwt = require('jsonwebtoken');
+require('dotenv').config();
+   ```
+
+Despues debemos utilizar el metodo verify de jwt donde le pasaremos como parametros el token que ya tenemos , la palabra secreta que tenemos almacenada en las variables de entorno y por ultimo un objeto con el algoritmo que estamos utilizando.
+```js
+ const user = jwt.verify(token,process.env.JWT_SECRET,{
+            algorithms: 'HS512'
+        });
+```
+Debemos quitar la palabra Bearer para poder utilizar solo el token para comparar, para eso debemos hacer lo siguiente 
+
+```js
+const token = authorization.split(' ')[1];
+console.log(token)
+        const user = jwt.verify(token, process.env.JWT_SECRET, {
+            algorithms: 'HS512'
+        });
+```
+
+### Validaciones con Express Validator
+
+Express Validator es un conjunto de midlewares que nos ayudan a validar lo que viene en una peticion.
+Para instalar ExpressValidator
+```shell
+npm i express-validator
+```
+Creamos un archivo js en la carpeta models/user
+Llamado user.validator.js
+
+Importamos la libreria en ese mismo archivo
+
+```js
+ const {check} = require('express-validator);
+```
+Creamos un arreglo donde almacenaremos todos los midlewares que vamos a utilizar.
+
+### Check
+Con check validamos si hay algun problema con alguna propiedad
+Acepta 
+-body
+-cookies
+-headers 
+-params
+-query
+Donde nosotros utilizaremos body ya que ahi es donde tenemos las propiedades del user
+Entonces decimos
+```js
+const registerUserValidator = [
+    check('firstname',"Error con firstname")
+]
+```
+Usamos check y en los parametros le pasamos la propiedad a revisar, seguido de un mensaje de error que se mostrara en caso de que haya algun problema con esa propiedad.

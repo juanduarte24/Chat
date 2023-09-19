@@ -6,6 +6,10 @@ require('dotenv').config();
 const registerUser = async (req, res) => {
     try {
         const newUser = req.body;
+
+        //Vamos a realizar una consulta a la DB innecesaria
+        //Validar los datos
+        const {firtname, lastname, email, password} = newUser;
         await User.create(newUser);
         res.status(201).end();
     } catch (error) {
