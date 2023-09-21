@@ -418,7 +418,9 @@ Importamos la libreria en ese mismo archivo
  const {check} = require('express-validator);
 ```
 Creamos un arreglo donde almacenaremos todos los midlewares que vamos a utilizar.
-
+```js
+const registerUserValidator = [];
+```
 ### Check
 Con check validamos si hay algun problema con alguna propiedad
 Acepta 
@@ -435,3 +437,42 @@ const registerUserValidator = [
 ]
 ```
 Usamos check y en los parametros le pasamos la propiedad a revisar, seguido de un mensaje de error que se mostrara en caso de que haya algun problema con esa propiedad.
+Podemos encadenar midlewares para asi realizar una validacion mas segura.
+
+```js
+const registerUserValidator = [
+    check('firstname', "Error con firstname")
+        .exists()
+        .notEmpty()
+        .isString()
+        .isLength({ min: 2, max: 50 })
+]
+```
+Aqui vemos como validamos que la propiedad firstname exista, no la envien vacia, sea un string y que su longitud minima sea de 2 caracteres y maxima de 50 caracteres.
+
+### .validationResult()
+Esto nos ayuda a validar el resultado de todos los midlewares que hemos encadenado
+
+Para utilizarlo es de la siguiente manera
+```js
+const registerUserValidator = [
+    check('firstname', "Error con firstname")
+        .exists()
+        .notEmpty()
+        .isString()
+        .isLength({ min: 2, max: 50 })
+        .matches(/^[a-zA-Z\s]/),
+        (req,res, next)=>{
+            try {
+                validationResult(req).throw();
+                next();
+            } catch (error) {
+                res.status(400).json(error);
+            }
+        }
+]
+```
+Despues de haber validado la prop firstame debemos validar el resultado para ver si podemos continuar o hay algun error para eso utilizamos validationResult( )
+Donde tenemos que usarlo dentro de un midleware donde recibimos la req,res y next 
+Dentro de un trycatch usamos validationResult, donde le pasamos la req con la validacion anterior, seguido de un throw que nos ayuda a lanzar todos los errores en caso de que haya algun campo que no cumpla con los requerimientos de validacion.
+y en Catch atrapamos el error y lo mandamos por un json con error 400.
