@@ -12,8 +12,12 @@ const registerUser = async (req, res) => {
         const {firtname, lastname, email, password} = newUser;
         await User.create(newUser);
         res.status(201).end();
+        //Enviar un correo al usuario!
+        
     } catch (error) {
         res.status(400).json(error);
+        console.log(error)
+        
     }
 }
 

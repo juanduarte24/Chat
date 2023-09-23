@@ -2,8 +2,11 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors')
-const userRoutes  = require('./modules/user/user.routes')
+const userRoutes  = require('./modules/user/user.routes');
+const  transporter  = require('./helpers/mailer');
 require('dotenv').config;
+
+
 
  const PORT = 7000;
 

@@ -476,3 +476,108 @@ Despues de haber validado la prop firstame debemos validar el resultado para ver
 Donde tenemos que usarlo dentro de un midleware donde recibimos la req,res y next 
 Dentro de un trycatch usamos validationResult, donde le pasamos la req con la validacion anterior, seguido de un throw que nos ayuda a lanzar todos los errores en caso de que haya algun campo que no cumpla con los requerimientos de validacion.
 y en Catch atrapamos el error y lo mandamos por un json con error 400.
+
+### NodeMailer
+Como mandar correos desde nuestro backend con NodeMailer
+Nos permite enviar correo electronicos a diestra y siniestra.
+
+Para instalar la dependencia
+
+```shell
+npm i nodemailer
+```
+
+Tendremos un transportador
+Sera el objeto capaz de enviar un email
+
+y un Transport
+Sera la configuracion del objeto, la conexion con la URL o tranposrta una instancia
+
+Como  lo hacemos?
+
+Primero debemos obtener la contrasena de google para apps en nuestra cuenta, se debemos activar la verificacion en dos pasos, y despues en contrasenas para apps nos facilita esa contrasena
+
+Una vez teniendola debemos guardarla en nuestras variables de entorno como G_PASSWORD
+
+Al igual debemos guardar en las V E nuestra cuentra con la que obtuvimos esa contrasena como G_USER
+
+### Uso de nodemailer
+Creamos una carpeta utils/helpers y dentro un archivo llamado mailer.js
+
+Importamos nodemailer y dotenv ya que utilizaremos nuestras variables de entorno
+```js
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+```
+
+Para crear un transporter es de la siguiente manera
+
+```js
+const transporter = nodemailer.createTransport();
+```
+
+En una constante almacenamos nodemailer.createTransport y despues le pasamos las configuraciones.
+```js
+const transporter = nodemailer.createTransport({
+    host:'smtp.gmail.com',
+    port:465,
+    secure: true,
+    auth:{
+        user: process.env.G_USER,
+        passwprd : process.env.G_PASSWORD
+    }
+});
+```
+Host
+Como estamos utilizando Gmail debemos adaptarnos y utilizar la confi de ssl, por eso el puerto es smtp.gmail.com
+    
+Port
+Al igual gmail utiliza ese puerto para una conexion segura.
+
+Secure
+Le decimos que la conexion sera segura con TRUE
+
+Auth:
+Aqui le pasamos nuestras variables de autenticacion que son las que obtuvimos en google
+Es un objeto con las propiedad user y password, donde en nuestras V.E las tenemos almacenadas entonces le pasamos process.env.G_USER y process.env.G_PASSWORD
+
+y al final exportamos nuestro transporter para poder ser utilizado donde los necesitemos.
+
+### Metodo .sendMail()
+
+En el modelo de usuario debemos utilizar el metodo .sendMail en la parte de los hooks, un hook de sequelize llama aferCreate donde usaremos el envio del mail para la confirmacion de cuenta mediante un enlace
+
+importamos el nuesto nodeMailer
+```js
+const transporter  = require('../helpers/mailer');
+```
+
+y en los hook usamos el afterCreate Este es una funcion que recibe como parametro al usuario que se creo y las options en caso de utilzarlas
+```js
+afterCreate : (user, options) => {
+
+}
+```
+Dentro desestructuramos la informacion que necesitemos del user como seria el email, firstname, lastname del objeto user;
+```js
+afterCreate: (user, options)=>{
+        const {email, firstname, lastname } =user;
+}
+```
+Seguido de nuestro transporter ya importado utilizando el metodo .sendMail()
+le pasamos un objeto que lleva la siguietne estructura : 
+to: email (email obtenido en la desestructuracion del user)
+subject : "Mensaje de subject"
+html: En este caso enviaremos un correo personalizado con html, donde utilizaremos los demas datos del user para mejor experiencia
+Dentro creamos una etiquita <a></a> donde escribiremos el enlace para la verificacion de la cuenta
+
+```js
+afterCreate: (user, options)=>{ 
+        const {email, firstname, lastname } =user;
+        transporter.sendMail({
+          to : email,
+          subject : 'Bienvenido al Chat',
+          html :`<h1>Hola ${firstname} ${lastname} Da click en el <a href='localhost:5371/auth/email-validation?token='>enlace</a> para verificar el correo</h1>`
+        })
+      }
+```

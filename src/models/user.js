@@ -1,8 +1,11 @@
 'use strict';
 const bcrypt = require('bcrypt');
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+const transporter = require('../helpers/mailer');
+const jwt = require('jsonwebtoken')
+require('dotenv').config();
+
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -12,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      User.hasMany(models.Message,{foreignKey: 'senderId'});
-      User.belongsToMany(models.Conversation,{through: 'Participant'});
-      User.hasMany(models.Conversation,{foreignKey : 'createdBy'});
+      User.hasMany(models.Message, { foreignKey: 'senderId' });
+      User.belongsToMany(models.Conversation, { through: 'Participant' });
+      User.hasMany(models.Conversation, { foreignKey: 'createdBy' });
 
     }
   }
@@ -29,12 +32,25 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
-    hooks:{
-      beforeCreate: async (user,options)=>{
-        const hashed = await bcrypt.hash(user.password,10)
-        user.password= hashed;
+    hooks: {
+      beforeCreate: async (user, options) => {
+        const hashed = await bcrypt.hash(user.password, 10)
+        user.password = hashed;
+      },
+      afterCreate: (user, options) => {
+        const { email, firstname, lastname } = user;
+        const token = jwt.sign({email}, process.env.JWT_EMAIL_SECRET,{
+          expiresIn : '3d',
+          algorithm: 'HS512'
+        })
+        transporter.sendMail({
+          to: email,
+          subject: 'Bienvenido al Chat',
+          html: `<h1>Hola ${firstname} ${lastname} Da click en el <a href="http://localhost:5173/auth/email-validation?token=${token}">enlace</a> para verificar el correo</h1>`
+        })
       }
     }
-  });
+  }
+  );
   return User;
 };
