@@ -9,15 +9,15 @@ const registerUser = async (req, res) => {
 
         //Vamos a realizar una consulta a la DB innecesaria
         //Validar los datos
-        const {firtname, lastname, email, password} = newUser;
+        const { firtname, lastname, email, password } = newUser;
         await User.create(newUser);
         res.status(201).end();
         //Enviar un correo al usuario!
-        
+
     } catch (error) {
         res.status(400).json(error);
         console.log(error)
-        
+
     }
 }
 
@@ -54,7 +54,27 @@ const loginUser = async (req, res) => {
     }
 }
 
+const validateUserEmail = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) {
+            res.status(400).json({ message: 'Token is required' })
+        }
+        const { email } = jwt.verify(token, process.env.JWT_EMAIL_SECRET, {
+            algorithms: 'HS512'
+        })
+        const user = await User.findOne({ where: { email } });
+        if (user.validEmail) {
+            res.status(400).json({ message: 'Email is already verified' })
+        }
+        user.validEmail = true;
+        user.save();
+        res.json({ message: 'Email verified successfuly' })
+    } catch (error) {
+        res.status(400).json(error);
+    }
+}
 module.exports = {
     registerUser,
-    loginUser
+    loginUser, validateUserEmail
 }

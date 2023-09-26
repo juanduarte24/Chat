@@ -5,7 +5,7 @@ module.exports = {
   "development": {
     "username": "postgres",
     "password": "root",
-    "database": "chatAPI",
+    "database": "chatapi",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },

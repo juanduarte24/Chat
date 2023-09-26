@@ -581,3 +581,49 @@ afterCreate: (user, options)=>{
         })
       }
 ```
+
+### Validar Email de Usuario con Token 
+Creamos una nueva ruta con nombre 'Validate-user' seguido de un controlador llamada validateUserEmail
+En el controlador de user creamos el validareUserEmail donde le pasamos la req, res y un trycatch
+Dentro de Try obtenemos el token del body con la desestructuracion y lo guardamos en una variable llamada token
+y con un if decimos si el token no existe! entonces enviamos un 400 y un mensaje diciendo que el token es requerido
+```js
+const validateUserEmail = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) {
+            res.status(400).json({ message: 'Token is required' })
+        }
+    } catch (error) {
+        res.status(400).json(error);
+    }
+}
+```
+
+y al final lo exportamos
+
+Despues decimos que si todo sale bien entonces 
+Desestructuramos el email= y lo verificamos con .verify
+donde le pasamos el token del body, la palabra secreta de nuestro email y el tipo de algoritmo en un objeto
+```js
+const {email}= jwt.verify(token, process.env.JWT_EMAIL_SECRET,{
+            algorithms:'HS512'
+        })
+```
+Despues buscamos al usuario que tenga el email
+```js
+const user = await User.findOne({where : {email}});
+```
+En el User utilizamos metodo findOne para buscar en la DB donde sea el email que coincida.
+despues actualizamos la propiedad valiEmail a true
+esto nos devuelve una instancia del usuario y en lugar de actualizar la DB con .update lo hacemos con .save
+
+```js
+  const user = await User.findOne({where:{email}});
+        if(user.validEmail){
+            res.status(400).json({message: 'Email is already verified'})
+        }
+        user.validEmail = true;
+        user.save();
+        res.json({message:'Email verified successfuly'})
+
