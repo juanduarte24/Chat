@@ -625,5 +625,35 @@ esto nos devuelve una instancia del usuario y en lugar de actualizar la DB con .
         }
         user.validEmail = true;
         user.save();
-        res.json({message:'Email verified successfuly'})
+        res.json({message:'Email verified successfuly'});
+```
+### EJS
+Nos sirve para crear templates con JS y html
+En este caso los usaremos para enviar un correo personalizado al momento de que el usuario se registre y le aparezca el correo de confirmacion
 
+Para instalarlo es de lasiguiente manera
+```shell
+npm i ejs
+```
+Donde lo estaremos utilizando sera en el modelo de user donde tenemos los hooks para enviar el email, por ende debemos importarlo en el archivo para poder utilizarlo
+
+```js
+const ejs = require('ejs');
+```
+Despues debemos enccontrar la ruta del template que reenderizaremos
+
+importamos path ya que nos sirve para resolver rutas y convertir las rutas en rutas absolutas  sin importar en que computadora se encuentra mi proyecto. 
+
+Obtenemos la ruta del archivo examples con el path.join( )
+```js
+const emailTemplate = path.join(__dirname , '../views/example.ejs');
+
+```
+Despues renderizamos el archivo con ejs.renderFile()
+Le pasamos emailTemplate ya que ahi tenemos la ruta absoluta del archivo
+Debemos hacer la funcion asincrona ya que renderFile nos regresa una promesa, asi que tenemos que volverla async
+```js
+const template = await  ejs.renderFile(emailTemplate);
+```
+
+De BeeFree que es una pagina de templates ya hechos vamos a copiar uno para usarlo en nuestro poryecto, en la carpeta views hacemos una carpeta llamada welcome referenciando al template de bienvenida y dentro guardamos los archivos que nos dio la pagina Beefree.
