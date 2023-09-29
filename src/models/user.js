@@ -39,10 +39,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       afterCreate: async (user, options) => {
         const { email, firstname, lastname } = user;
-        sendWelcomeEmail(email,{firstname,lastname})
-        
-        
-       
+        sendWelcomeEmail(email, { firstname, lastname })
+
+
+
       }
     }
   }

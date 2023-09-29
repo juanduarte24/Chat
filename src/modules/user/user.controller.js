@@ -39,6 +39,15 @@ const loginUser = async (req, res) => {
                 message: 'The password does not match with user'
             })
         }
+
+        if(!user.validEmail){
+            return res.status(401).json({
+                error: 'Email verification needed',
+                message: 'Look at your email messages for a verification email'
+            })
+        }
+
+
         const copyUser = { ...user.dataValues }
         delete copyUser.password
         const token = jwt.sign(copyUser, process.env.JWT_SECRET, {

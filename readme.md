@@ -657,3 +657,37 @@ const template = await  ejs.renderFile(emailTemplate);
 ```
 
 De BeeFree que es una pagina de templates ya hechos vamos a copiar uno para usarlo en nuestro poryecto, en la carpeta views hacemos una carpeta llamada welcome referenciando al template de bienvenida y dentro guardamos los archivos que nos dio la pagina Beefree.
+
+
+### Reenderizar imagenes NodeMailer
+Creamos en sendMail un attachments que es un arreglo de objetos y ahi es donde adjuntaremos las imagenes del template, en la documentacion nos indica que debemos pasarle el nombre del archivo, la direccion y una palabra unica para reconocer el archivo en el template
+
+```js
+  const attachments = [
+        {
+        filename : 'Email-Illustration.png',
+        path : path.join(__dirname, '../views/welcome/images/Email-Illustration.png'),
+        cid : 'logo'
+        
+    },
+]
+```
+y en el template que tenemos buscamos el nombre de la imagen para sustituir el nombre con el cid
+```js
+src= 'cid : logo';
+```
+### Manejo de Errores
+MidleWare para manejo de errores
+ - Maneja 4 Parametros
+ Si a un midleware le ponemos 4 params, automaticamente se convierte en uno para manejar errores.
+  1. el primero es de error (err)
+  2. req
+  3. res
+  4. next
+
+Los midlewares de Error SIEMPRE van a ser ejecutados despues de nuestras rutas( antes del GET )
+
+
+
+
+
