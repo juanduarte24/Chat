@@ -676,16 +676,7 @@ y en el template que tenemos buscamos el nombre de la imagen para sustituir el n
 ```js
 src= 'cid : logo';
 ```
-### Manejo de Errores
-MidleWare para manejo de errores
- - Maneja 4 Parametros
- Si a un midleware le ponemos 4 params, automaticamente se convierte en uno para manejar errores.
-  1. el primero es de error (err)
-  2. req
-  3. res
-  4. next
 
-Los midlewares de Error SIEMPRE van a ser ejecutados despues de nuestras rutas( antes del GET )
 
 ### Obtener imagenes de un template automaticamente
 Creamos un nuevo archivo getIamges en helpers para poder realizar la logica.
@@ -713,6 +704,62 @@ console.log(images)
 
 }
 ```
+Convertimos nuestra funcion a dinamica para poder leer cualquier directorio, no solo uno
+ 
+ En los parametros agregamos un dirPath que es donde le pasaremos la direccion de la carpeta
+ 
+ Y modificamos en el path.join los parametros concatenando '..' , dirPath
+ Donde los dos puntos indican que nos salimos del directorio que estabamos a la ruta src y el dirPath que es donde pondremos la carpeta a la cual queremos entrar
+ ```js
+ const getIamges = async  (dirPath)=>{ //dirpath es una ruta dentro de src
+//Leer el directorio donde estan las imagenes
+const imagesPath = path.join(__dirname,'..',dirPath);
+
+//leer el directorio donde estan las imagenes
+const images = await fs.readdir(imagesPath)
+
+console.log(images)
+
+}
+
+ ```
+
+Para filtrar o validar que solo vamos a obtener las imganes con ciertas extensiones hacemos la siguiente
+
+Creamos un arreglo con las extensiones de imagenes que queremes filtar
+```js
+    const formats = ['.png', '.gif', '.jpg', '.jpeg', 'webp', '.svg']
+```
+
+Despyes de leer el directorio creamos una variable donde almacenaremos las imagenes filtradas
+
+```js
+const filtered = images.filter((img)=
+formats.includes(path.extname(img)));
+```
+Decimos que la variable imagenes que es donde estan la lectura del directorio de imagenes filtraremos por extensiones, entonces utilizamos el arreglo donde almacenamos las extensiones y le decimes que si incluye esas extensiones nos regrese la ruta y las imagenes con las coincidencias de las extensiones.
+
+Ahora para obtener las imagenes como tal
+Le decimos que haga un return implicito de filtered y con un metodo map le pasamos el nombre de los atributos que necesitamos que nos devuelva que son el filename, path, cid
+
+```js
+ return filtered.map((img) => ({
+        filename : img ,
+        path: `${imagesPath}/${img}` ,
+        cid: img.split('.')[0]
+    }))
+```
+### Manejo de Errores
+MidleWare para manejo de errores
+ - Maneja 4 Parametros
+ Si a un midleware le ponemos 4 params, automaticamente se convierte en uno para manejar errores.
+  1. el primero es de error (err)
+  2. req
+  3. res
+  4. next
+
+Los midlewares de Error SIEMPRE van a ser ejecutados despues de nuestras rutas( antes del GET )
+
 
 
 
