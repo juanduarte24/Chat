@@ -5,7 +5,11 @@ const validateResult = (req, res, next) => {
         validationResult(req).throw();
         next();
     } catch (error) {
-        res.status(400).json(error.array().map((error)=>error.msg));
+        next({
+            status:400,
+            error : 'Invalid Data',
+            message: error.array().map((error)=>error.msg)
+        });
     }
 }
 

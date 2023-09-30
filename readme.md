@@ -687,6 +687,32 @@ MidleWare para manejo de errores
 
 Los midlewares de Error SIEMPRE van a ser ejecutados despues de nuestras rutas( antes del GET )
 
+### Obtener imagenes de un template automaticamente
+Creamos un nuevo archivo getIamges en helpers para poder realizar la logica.
+
+Usaremos File System para encontrar las rutas de las carpetas en nuestro proyecto
+
+Importamos fs y path
+```js
+const fs = require('node:fs/promises');
+const path = require('node:path');
+```
+
+Creamos una funcion asyncrona ya que fs nos devuelve una promesa 
+Y dentro Primero guardamos en una variable la ruta del directorio que necesitamos
+Seguido Leemos el directorio con fs.readdir y le pasamos la variable donde tenemos almacenada la ruta (path)
+```js
+const getIamges = async  ()=>{
+//Leer el directorio donde estan las imagenes
+const imagesPath = path.join(__dirname,'../views/welcome/images');
+
+//leer el directorio donde estan las imagenes
+const images = await fs.readdir(imagesPath)
+
+console.log(images)
+
+}
+```
 
 
 

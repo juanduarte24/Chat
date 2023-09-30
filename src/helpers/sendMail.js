@@ -2,6 +2,7 @@ const transporter = require('./mailer');
 const jwt = require('jsonwebtoken');
 const ejs = require('ejs');
 const path = require('node:path');
+const getIamges = require('./getImages');
 
 require('dotenv').config();
 
@@ -34,30 +35,9 @@ const sendWelcomeEmail = async (email, data) => {
     //Obtenemos el template con la funcion que creamos 
     template = await getTemplate('../views/welcome/welcome-email.ejs.html',{...data,token});
     
-    const attachments = [
-        {
-        filename : 'Email-Illustration.png',
-        path : path.join(__dirname, '../views/welcome/images/Email-Illustration.png'),
-        cid : 'logo'
-        
-    },
-    {
-        filename: 'Beefree-logo.png',
-        path : path.join(__dirname,'../views/welcome/images/Beefree-logo.png'),
-        cid : 'logo1'
-    },
-    {
-        filename : 'facebook2x.png',
-        path : path.join(__dirname,'../views/welcome/images/facebook2x.png' ),
-        cid : 'logof'
-    }
-    ,
-    {
-        filename: 'twitter2x.png',
-        path: path.join(__dirname, '../views/welcome/images/twitter2x.png'),
-        cid: 'xt'
-    }
-]
+
+    //Obtenemos las imagenes con la funcion que creamos para evitar el uso del arreglo manual
+    const attachments = await getIamges('/views/welcome/images')
     
     sendMail(email, 'Bienvenido al Chat!', template, attachments)
     //enviar el correo 

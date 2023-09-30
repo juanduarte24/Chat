@@ -5,7 +5,11 @@ const authenticate = (req, res, next) => {
     try {
         const authorization = req.headers.authorization;
         if (!authorization) {
-            return res.status(401).json({ message: 'No authorization header' })
+            throw{
+                status : 401,
+                message: 'No authorization header'
+            }
+            
         }
         const token = authorization.split(' ')[1];
         
@@ -18,7 +22,7 @@ const authenticate = (req, res, next) => {
 
 
     } catch (error) {
-        res.status(400).json(error)
+        next(error)
     }
 }
 
